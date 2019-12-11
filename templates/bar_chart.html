@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>{{ title }}</title>
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/1.0.2/Chart.min.js'></script>
+  <script
+  src="https://code.jquery.com/jquery-3.3.1.min.js"
+  integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+  crossorigin="anonymous"></script>
+ 
+
+</head>
+
+<body>
+  <center>
+    <h1>{{ title }}</h1>
+  </center>
+  <center>
+    <canvas id="chart" width="600" height="400"></canvas>
+    <script>
+      // bar chart data
+      var barData = {
+        labels : [
+          {% for item in labels %}
+           "{{ item }}",
+          {% endfor %}
+    ],
+        datasets : [{
+          fillColor: "rgba(151,187,205,0.2)",
+          strokeColor: "rgba(151,187,205,1)",
+          pointColor: "rgba(151,187,205,1)",
+          data : [
+            {% for item in values %}
+               "{{ item }}",
+              {% endfor %}
+        ]
+          }
+        ]
+      }
+     // get bar chart canvas
+     var mychart = document.getElementById("chart").getContext("2d");
+       steps = 10
+       max = {{max}}
+     // draw bar chart
+     new Chart(mychart).Bar(barData, {
+       scaleOverride: true,
+       scaleSteps: steps,
+       //scaleStepWidth: Math.ceil(max / steps),
+       scaleStepWidth: 10,
+       scaleStartValue: 0,
+       scaleShowVerticalLines: true,
+       scaleShowGridLines : true,
+       barShowStroke : true,
+       scaleShowLabels: true,
+       animation: false
+       }
+     );
+
+
+     function timedRefresh(timeoutPeriod) {
+      setTimeout("location.reload(true);",timeoutPeriod);
+       }
+       window.onload = timedRefresh(2000);
+
+     setInterval(function () {
+         chart.config.data.labels.push(Math.floor(Date.now() / 1000));
+         chart.config.data.datasets[0].data.push(Math.floor(10 + Math.random() * 80));
+         //chart.update();
+         // limit to 10
+         chart.config.data.labels.shift();
+         //chart.config.data.labels = data.labels.splice(-10);
+          chart.config.data.datasets[0].data.shift();
+         //data.config.datasets[0].data = data.datasets[0].data.shift();
+        chart.update();
+          
+        }, 1000);
+
+
+    </script>
+  </center>
+</body>
+</html>
+
+

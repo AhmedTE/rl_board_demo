@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>{{ title }}</title>
+  <script src='https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.1.2/Chart.min.js'></script>
+</head>
+
+<body>
+  <center>
+    <h1>{{ title }}</h1>
+
+    <canvas id="chart" width="1000" height="200"></canvas>
+    <canvas id="chart2" width="1000" height="200"></canvas>
+    <canvas id="chart3" width="1000" height="200"></canvas>
+    <canvas id="chart4" width="1000" height="200"></canvas>
+    <canvas id="chart_bar" width="600" height="400"></canvas>
+
+    <script>
+
+      
+      function timedRefresh(timeoutPeriod) {
+      setTimeout("location.reload(true);",timeoutPeriod);
+       }
+       window.onload = timedRefresh(20000);
+
+
+      // bar chart data
+      var barData = {
+        labels : [
+          {% for item in labels %}
+            "{{ item }}",
+          {% endfor %}
+        ],
+        fill: false,
+        
+        options: {  
+          scales: {
+            xAxes: [{
+              ticks: {
+                autoSkip: true,
+                maxTicksLimit: 20
+              }
+            }]
+          }
+        },
+        
+        datasets : [{
+          //fillColor: "rgba(151,187,205,0.2)",
+          fillColor: 'transparent',
+          strokeColor: "rgba(151,255,205,1)",
+          //pointColor: "rgba(151,187,205,1)",
+          label: "Accuracy State (ACC/ACC_fp)",
+          borderColor: "#3e95cd",
+          fill: false,
+          pointColor: "rgba(255,187,205,1)",
+          pointStrokeColor: "#f00",
+          pointHighlightFill: "#00f",
+          pointHighlightStroke: "rgba(151,187,205,1)",
+          bezierCurve : false,
+          //data : [{ values1 }]
+          data : [
+        {% for item in values[0] %}
+              {{ item }},
+            {% endfor %}]
+          
+          }
+       ]
+      }
+
+      // --------------
+      // bar chart data
+      var barData2 = {
+        labels : [
+          {% for item in labels %}
+            "{{ item }}",
+          {% endfor %}
+        ],
+        fill: false,
+        
+        options: {  
+          scales: {
+            xAxes: [{
+              ticks: {
+                autoSkip: true,
+                maxTicksLimit: 20
+              }
+            }]
+          }
+        },
+        
+        datasets : [{
+          //fillColor: "rgba(151,187,205,0.2)",
+          fillColor: 'transparent',
+          strokeColor: "rgba(151,255,205,1)",
+          //pointColor: "rgba(151,187,205,1)",
+          label: "Quant State (normalized sum of #bits over all layers)",
+          borderColor: "#FF0066",
+          fill: false,
+          pointColor: "rgba(255,187,205,1)",
+          pointStrokeColor: "#f00",
+          pointHighlightFill: "#00f",
+          pointHighlightStroke: "rgba(151,187,205,1)",
+          bezierCurve : false,
+          data : [
+        {% for item in values[1] %}
+              {{ item }},
+            {% endfor %}]
+          }
+       ]
+      }
+      // --------------
+      // bar chart data
+      var barData3 = {
+        labels : [
+          {% for item in labels %}
+            "{{ item }}",
+          {% endfor %}
+        ],
+        fill: false,
+        
+        options: {  
+          scales: {
+            xAxes: [{
+              ticks: {
+                autoSkip: true,
+                maxTicksLimit: 20
+              }
+            }]
+          }
+        },
+        
+        datasets : [{
+          //fillColor: "rgba(151,187,205,0.2)",
+          fillColor: 'transparent',
+          strokeColor: "rgba(151,255,205,1)",
+          //pointColor: "rgba(151,187,205,1)",
+          label: "Reward",
+          borderColor: "#4DCC27",
+          fill: false,
+          pointColor: "rgba(255,187,205,1)",
+          pointStrokeColor: "#f00",
+          pointHighlightFill: "#00f",
+          pointHighlightStroke: "rgba(151,187,205,1)",
+          bezierCurve : false,
+          data : [
+        {% for item in values[2] %}
+              {{ item }},
+            {% endfor %}]
+          }
+       ]
+      }
+      // --------------
+      // bar chart data
+      var barData4 = {
+        labels : [
+          {% for item in labels %}
+            "{{ item }}",
+          {% endfor %}
+        ],
+        fill: false,
+        
+        options: {  
+          scales: {
+            xAxes: [{
+              ticks: {
+                autoSkip: true,
+                maxTicksLimit: 20
+              }
+            }]
+          }
+        },
+        
+        datasets : [{
+          //fillColor: "rgba(151,187,205,0.2)",
+          fillColor: 'transparent',
+          strokeColor: "rgba(151,255,205,1)",
+          //pointColor: "rgba(151,187,205,1)",
+          label: "Accum. Reward",
+          borderColor: "#F4C427",
+          fill: false,
+          pointColor: "rgba(255,187,205,1)",
+          pointStrokeColor: "#f00",
+          pointHighlightFill: "#00f",
+          pointHighlightStroke: "rgba(151,187,205,1)",
+          bezierCurve : false,
+          data : [
+        {% for item in values[3] %}
+              {{ item }},
+            {% endfor %}]
+          }
+       ]
+      }
+      // --------------
+      Chart.defaults.global.animationSteps = 50;
+      Chart.defaults.global.tooltipYPadding = 16;
+      Chart.defaults.global.tooltipCornerRadius = 0;
+      Chart.defaults.global.tooltipTitleFontStyle = "normal";
+      Chart.defaults.global.tooltipFillColor = "rgba(0,0,0,0.8)";
+      Chart.defaults.global.animationEasing = "easeOutBounce";
+      Chart.defaults.global.responsive = false;
+      Chart.defaults.global.scaleLineColor = "black";
+      Chart.defaults.global.scaleFontSize = 16;
+      // get bar chart canvas
+      var mychart = document.getElementById("chart").getContext("2d");
+      var mychart2 = document.getElementById("chart2").getContext("2d");
+      var mychart3 = document.getElementById("chart3").getContext("2d");
+      var mychart4 = document.getElementById("chart4").getContext("2d");
+
+      steps = 10
+      max = {{ max }}
+
+      var options2 =  {  
+        showXLabels: 10, 
+        ticks: {
+                  autoSkip: true,
+                  maxTicksLimit: 20
+                },
+        scales: {
+            xAxes: [{
+                ticks: {
+                  autoSkip: true,
+                  maxTicksLimit: 20
+                }
+            }]   
+        }
+      }
+
+
+      var options =  {  
+         scales: {
+            xAxes: [{
+                afterTickToLabelConversion: function(data){
+
+
+                    var xLabels = data.ticks;
+
+                    xLabels.forEach(function (labels, i) {
+                        if (i % 100 == 1){
+                            xLabels[i] = '';
+                        }
+                    });
+                } 
+            }]   
+        }
+      }
+
+
+
+      // new chart
+      var myLineChart = new Chart(mychart, {
+          type: 'line',
+          data: barData,
+          scaleOverride: true,
+          scaleSteps: steps,
+          scaleStepWidth: 0.1,
+          scaleStartValue: 0,
+          scaleShowVerticalLines: true,
+          scaleShowGridLines : true,
+          barShowStroke : true,
+          scaleShowLabels: true,
+          scaleShowXLabels: false,
+          showXLabels: false, 
+          bezierCurve: false,
+          fill: false,
+          options: {
+              scales: {
+                  xAxes: [{
+                      scaleLabel:{
+                            display: true,
+                            labelString: 'Episode #'  
+                          },
+                      ticks: {
+                          //display: false
+                          autoSkip: true,
+                          maxTicksLimit: 20,
+                      }
+                  }],
+
+                  yAxes: [{
+                      scaleLabel:{
+                            display: false,
+                            labelString: 'Normalized Accuracy State'  
+                          },
+                  }]
+            
+              }
+          }
+      });
+      // --------
+      // new chart
+      var myLineChart = new Chart(mychart2, {
+          type: 'line',
+          data: barData2,
+          scaleOverride: true,
+          scaleSteps: steps,
+          scaleStepWidth: 0.1,
+          scaleStartValue: 0,
+          scaleShowVerticalLines: true,
+          scaleShowGridLines : true,
+          barShowStroke : true,
+          scaleShowLabels: true,
+          scaleShowXLabels: false,
+          showXLabels: false, 
+          bezierCurve: false,
+          fill: false,
+          options: {
+              scales: {
+                  xAxes: [{
+                      scaleLabel:{
+                            display: true,
+                            labelString: 'Episode #'  
+                          },
+                      ticks: {
+                          //display: false
+                          autoSkip: true,
+                          maxTicksLimit: 20,
+                      }
+                  }],
+
+                  yAxes: [{
+                      scaleLabel:{
+                            display: false,
+                            labelString: 'Normalized Accuracy State'  
+                          },
+                  }]
+            
+              }
+          }
+      });
+      // --------
+
+      // new chart
+      var myLineChart = new Chart(mychart3, {
+          type: 'line',
+          data: barData3,
+          scaleOverride: true,
+          scaleSteps: steps,
+          scaleStepWidth: 0.1,
+          scaleStartValue: 0,
+          scaleShowVerticalLines: true,
+          scaleShowGridLines : true,
+          barShowStroke : true,
+          scaleShowLabels: true,
+          scaleShowXLabels: false,
+          showXLabels: false, 
+          bezierCurve: false,
+          fill: false,
+          options: {
+              scales: {
+                  xAxes: [{
+                      scaleLabel:{
+                            display: true,
+                            labelString: 'Episode #'  
+                          },
+                      ticks: {
+                          //display: false
+                          autoSkip: true,
+                          maxTicksLimit: 20,
+                      }
+                  }],
+
+                  yAxes: [{
+                      scaleLabel:{
+                            display: false,
+                            labelString: 'Normalized Accuracy State'  
+                          },
+                  }]
+            
+              }
+          }
+      });
+      // --------
+    // new chart
+      var myLineChart = new Chart(mychart4, {
+          type: 'line',
+          data: barData4,
+          scaleOverride: true,
+          scaleSteps: steps,
+          scaleStepWidth: 0.1,
+          scaleStartValue: 0,
+          scaleShowVerticalLines: true,
+          scaleShowGridLines : true,
+          barShowStroke : true,
+          scaleShowLabels: true,
+          scaleShowXLabels: false,
+          showXLabels: false, 
+          bezierCurve: false,
+          fill: false,
+          options: {
+              scales: {
+                  xAxes: [{
+                      scaleLabel:{
+                            display: true,
+                            labelString: 'Episode #'  
+                          },
+                      ticks: {
+                          //display: false
+                          autoSkip: true,
+                          maxTicksLimit: 20,
+                      }
+                  }],
+
+                  yAxes: [{
+                      scaleLabel:{
+                            display: false,
+                            labelString: 'Normalized Accuracy State'  
+                          },
+                  }]
+            
+              }
+          }
+      });
+      // --------
+  // #bits -- bar chart data
+      var barData_bits = {
+        labels : [
+          {% for item in values[5] %}
+           "{{ item }}",
+          {% endfor %}
+    ],
+        datasets : [{
+          fillColor: "rgba(255,187,205,0.8)",
+          backgroundColor: "rgba(0,0,0,0.8)",
+          label: "Layers bits",
+          strokeColor: "rgba(255,187,205,1)",
+          pointColor: "rgba(255,187,205,1)",
+          data : [
+            {% for item in values[4] %}
+               "{{ item }}",
+              {% endfor %}
+        ]
+          }
+        ]
+      }
+     // get bar chart canvas
+
+
+    var myBarChart = new Chart(chart_bar, {
+       type: 'bar',
+       data: barData_bits,
+       scaleOverride: true,
+       scaleSteps: 16,
+       //scaleStepWidth: Math.ceil(max / steps),
+       scaleStepWidth: 2,
+       scaleStartValue: 0,
+       scaleShowVerticalLines: true,
+       scaleShowGridLines : true,
+       barShowStroke : true,
+       scaleShowLabels: true,
+       animation: false
+      
+       }
+     );
+
+
+    </script>
+  </center>
+</body>
+</html>
+
